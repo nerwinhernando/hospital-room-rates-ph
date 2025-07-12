@@ -1,4 +1,4 @@
-This is a project I started after my mother's hospitalization last July 10, 2024. My goal is to provide a place where people can find the room rates of a certain hospital.
+This is a project I started after my mother's hospitalization last July 10, 2025. My goal is to provide a place where people can find the room rates of a certain hospital.
 
 ## Getting Started
 
@@ -35,4 +35,11 @@ With the provided supabasescript.sql file, copy the content in subapase's sql ed
 To test the database connection, execute:
 ```
 node test-db.js
+```
+
+## Notes
+
+Application was bootstrapped using:
+```
+npx create-next-app@latest hospital-room-rates-ph --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
 ```
