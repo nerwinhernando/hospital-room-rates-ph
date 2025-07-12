@@ -4,14 +4,21 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Search, MapPin, Phone, Star, Filter, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-const HospitalRoomRatesSearchApp = () => {
+// Import the HospitalDetail component
+const HospitalDetail = React.lazy(() => import('./HospitalDetail'));
+
+const HospitalSearchApp = () => {
   // State for UI
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedRoomType, setSelectedRoomType] = useState('');
   const [priceRange, setPriceRange] = useState([0, 50000]);
   const [showFilters, setShowFilters] = useState(false);
-
+  
+  // State for navigation
+  const [selectedHospitalId, setSelectedHospitalId] = useState<number | null>(null);
+  const [showDetail, setShowDetail] = useState(false);
+  
   // State for data
   type HospitalRoom = {
     type: string;
@@ -184,6 +191,26 @@ const HospitalRoomRatesSearchApp = () => {
     fetchRoomTypes();
   };
 
+  const handleHospitalClick = (hospitalId: number) => {
+    setSelectedHospitalId(hospitalId);
+    setShowDetail(true);
+  };
+
+  const handleBackToSearch = () => {
+    setShowDetail(false);
+    setSelectedHospitalId(null);
+  };
+
+  // If showing hospital detail, render HospitalDetail component
+  if (showDetail && selectedHospitalId) {
+    return (
+      <HospitalDetail 
+        hospitalId={selectedHospitalId} 
+        onBack={handleBackToSearch}
+      />
+    );
+  }
+
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -207,7 +234,7 @@ const HospitalRoomRatesSearchApp = () => {
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Philippines Hospital Search</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Philippines Hospital Room Rates Search</h1>
           <p className="text-gray-600 mt-2">Find hospitals and compare room rates across the Philippines</p>
           {loading && (
             <div className="flex items-center mt-2 text-blue-600">
@@ -315,11 +342,17 @@ const HospitalRoomRatesSearchApp = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {filteredHospitals.map(hospital => (
-              <div key={hospital.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+              <div 
+                key={hospital.id} 
+                className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => handleHospitalClick(hospital.id)}
+              >
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-gray-900">{hospital.name}</h3>
+                      <h3 className="text-xl font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                        {hospital.name}
+                      </h3>
                       <div className="flex items-center gap-2 mt-2">
                         <MapPin className="w-4 h-4 text-gray-400" />
                         <span className="text-gray-600">{hospital.city}, {hospital.region}</span>
@@ -352,6 +385,7 @@ const HospitalRoomRatesSearchApp = () => {
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800 text-sm underline"
+                        onClick={(e) => e.stopPropagation()} // Prevent triggering hospital click
                       >
                         Visit Website
                       </a>
@@ -362,12 +396,13 @@ const HospitalRoomRatesSearchApp = () => {
                     <h4 className="font-medium text-gray-900 mb-3">Room Rates</h4>
                     {hospital.rooms.length > 0 ? (
                       <div className="space-y-3">
-                        {hospital.rooms.map((room, index) => (
+                        {hospital.rooms.slice(0, 3).map((room, index) => (
                           <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                             <div className="flex-1">
                               <div className="font-medium text-gray-900">{room.name || room.type}</div>
                               <div className="text-sm text-gray-600">
-                                {room.amenities.length > 0 ? room.amenities.join(', ') : 'No amenities listed'}
+                                {room.amenities.length > 0 ? room.amenities.slice(0, 3).join(', ') : 'No amenities listed'}
+                                {room.amenities.length > 3 && '...'}
                               </div>
                             </div>
                             <div className="text-right ml-4">
@@ -376,6 +411,11 @@ const HospitalRoomRatesSearchApp = () => {
                             </div>
                           </div>
                         ))}
+                        {hospital.rooms.length > 3 && (
+                          <div className="text-center text-blue-600 text-sm font-medium">
+                            +{hospital.rooms.length - 3} more rooms - Click to view all
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="text-gray-500 text-sm">No room information available</div>
@@ -443,4 +483,4 @@ const HospitalRoomRatesSearchApp = () => {
   );
 };
 
-export default HospitalRoomRatesSearchApp;
+export default HospitalSearchApp;
