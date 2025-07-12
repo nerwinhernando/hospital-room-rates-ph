@@ -1,146 +1,144 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { Search, MapPin, Phone, Star, Filter } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, MapPin, Phone, Star, Filter, Loader2, AlertCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 const HospitalRoomRatesSearchApp = () => {
+  // State for UI
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedRoomType, setSelectedRoomType] = useState('');
   const [priceRange, setPriceRange] = useState([0, 50000]);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Sample hospital data
-  const hospitals = [
-    {
-      id: 1,
-      name: "Makati Medical Center",
-      region: "National Capital Region",
-      city: "Makati City",
-      address: "2 Amorsolo Street, Legaspi Village, Makati City",
-      phone: "(02) 8888-8999",
-      rating: 4.5,
-      rooms: [
-        { type: "Standard Room", price: 8000, amenities: ["AC", "TV", "Private Bath"] },
-        { type: "Deluxe Room", price: 12000, amenities: ["AC", "TV", "Private Bath", "Sofa"] },
-        { type: "Suite", price: 25000, amenities: ["AC", "TV", "Private Bath", "Living Area", "Kitchenette"] },
-        { type: "ICU", price: 15000, amenities: ["24/7 Monitoring", "Ventilator Ready"] }
-      ]
-    },
-    {
-      id: 2,
-      name: "St. Luke's Medical Center",
-      region: "National Capital Region",
-      city: "Quezon City",
-      address: "279 E. Rodriguez Sr. Avenue, Quezon City",
-      phone: "(02) 8723-0101",
-      rating: 4.7,
-      rooms: [
-        { type: "Standard Room", price: 9000, amenities: ["AC", "TV", "Private Bath"] },
-        { type: "Deluxe Room", price: 14000, amenities: ["AC", "TV", "Private Bath", "Sofa", "Refrigerator"] },
-        { type: "Suite", price: 30000, amenities: ["AC", "TV", "Private Bath", "Living Area", "Kitchenette", "Balcony"] },
-        { type: "ICU", price: 18000, amenities: ["24/7 Monitoring", "Ventilator Ready", "Specialized Equipment"] }
-      ]
-    },
-    {
-      id: 3,
-      name: "Cebu Doctors' University Hospital",
-      region: "Central Visayas",
-      city: "Cebu City",
-      address: "Larrazabal Avenue, Cebu City",
-      phone: "(032) 255-5555",
-      rating: 4.3,
-      rooms: [
-        { type: "Standard Room", price: 6000, amenities: ["AC", "TV", "Private Bath"] },
-        { type: "Deluxe Room", price: 9000, amenities: ["AC", "TV", "Private Bath", "Sofa"] },
-        { type: "Suite", price: 18000, amenities: ["AC", "TV", "Private Bath", "Living Area"] },
-        { type: "ICU", price: 12000, amenities: ["24/7 Monitoring", "Ventilator Ready"] }
-      ]
-    },
-    {
-      id: 4,
-      name: "Davao Medical School Foundation Hospital",
-      region: "Davao Region",
-      city: "Davao City",
-      address: "Bajada, Davao City",
-      phone: "(082) 227-2731",
-      rating: 4.2,
-      rooms: [
-        { type: "Standard Room", price: 5500, amenities: ["AC", "TV", "Private Bath"] },
-        { type: "Deluxe Room", price: 8000, amenities: ["AC", "TV", "Private Bath", "Sofa"] },
-        { type: "Suite", price: 15000, amenities: ["AC", "TV", "Private Bath", "Living Area"] },
-        { type: "ICU", price: 10000, amenities: ["24/7 Monitoring", "Ventilator Ready"] }
-      ]
-    },
-    {
-      id: 5,
-      name: "Northern Mindanao Medical Center",
-      region: "Northern Mindanao",
-      city: "Cagayan de Oro City",
-      address: "J.R. Borja Street, Cagayan de Oro City",
-      phone: "(088) 857-3333",
-      rating: 4.0,
-      rooms: [
-        { type: "Standard Room", price: 4500, amenities: ["AC", "TV", "Shared Bath"] },
-        { type: "Deluxe Room", price: 7000, amenities: ["AC", "TV", "Private Bath", "Sofa"] },
-        { type: "Suite", price: 12000, amenities: ["AC", "TV", "Private Bath", "Living Area"] },
-        { type: "ICU", price: 8000, amenities: ["24/7 Monitoring", "Ventilator Ready"] }
-      ]
-    },
-    {
-      id: 6,
-      name: "Baguio General Hospital",
-      region: "Cordillera Administrative Region",
-      city: "Baguio City",
-      address: "Governor Pack Road, Baguio City",
-      phone: "(074) 442-4216",
-      rating: 4.1,
-      rooms: [
-        { type: "Standard Room", price: 5000, amenities: ["AC", "TV", "Private Bath"] },
-        { type: "Deluxe Room", price: 7500, amenities: ["AC", "TV", "Private Bath", "Sofa"] },
-        { type: "Suite", price: 14000, amenities: ["AC", "TV", "Private Bath", "Living Area"] },
-        { type: "ICU", price: 9000, amenities: ["24/7 Monitoring", "Ventilator Ready"] }
-      ]
+  // State for data
+  const [hospitals, setHospitals] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch regions on component mount
+  useEffect(() => {
+    fetchRegions();
+  }, []);
+
+  // Fetch room types on component mount
+  useEffect(() => {
+    fetchRoomTypes();
+  }, []);
+
+  // Fetch hospitals when filters change
+  useEffect(() => {
+    fetchHospitals();
+  }, [selectedRegion, selectedRoomType, priceRange]);
+
+  const fetchRegions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('regions')
+        .select('id, name')
+        .order('name');
+
+      if (error) throw error;
+      setRegions(data || []);
+    } catch (err) {
+      console.error('Error fetching regions:', err);
+      setError('Failed to load regions');
     }
-  ];
+  };
 
-  const regions = [
-    "National Capital Region",
-    "Central Visayas",
-    "Davao Region",
-    "Northern Mindanao",
-    "Cordillera Administrative Region",
-    "Ilocos Region",
-    "Cagayan Valley",
-    "Central Luzon",
-    "CALABARZON",
-    "MIMAROPA",
-    "Bicol Region",
-    "Western Visayas",
-    "Eastern Visayas",
-    "Zamboanga Peninsula",
-    "SOCCSKSARGEN",
-    "Caraga",
-    "BARMM"
-  ];
+  const fetchRoomTypes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('room_types')
+        .select('id, name')
+        .order('name');
 
-  const roomTypes = ["Standard Room", "Deluxe Room", "Suite", "ICU"];
+      if (error) throw error;
+      setRoomTypes(data || []);
+    } catch (err) {
+      console.error('Error fetching room types:', err);
+      setError('Failed to load room types');
+    }
+  };
 
+  const fetchHospitals = async () => {
+    try {
+      setLoading(true);
+      let query = supabase
+        .from('hospitals')
+        .select(`
+          *,
+          regions(name),
+          rooms(
+            id,
+            name,
+            price,
+            amenities,
+            room_types(name)
+          )
+        `)
+        .eq('is_active', true);
+
+      // Apply region filter
+      if (selectedRegion) {
+        const region = regions.find(r => r.name === selectedRegion);
+        if (region) {
+          query = query.eq('region_id', region.id);
+        }
+      }
+
+      const { data, error } = await query.order('rating', { ascending: false });
+
+      if (error) throw error;
+
+      // Process the data to match our component structure
+      const processedHospitals = (data || []).map(hospital => ({
+        id: hospital.id,
+        name: hospital.name,
+        region: hospital.regions?.name || 'Unknown Region',
+        city: hospital.city,
+        address: hospital.address,
+        phone: hospital.phone,
+        rating: hospital.rating,
+        website: hospital.website,
+        description: hospital.description,
+        rooms: (hospital.rooms || []).map(room => ({
+          type: room.room_types?.name || 'Unknown Type',
+          name: room.name,
+          price: room.price,
+          amenities: Array.isArray(room.amenities) ? room.amenities : JSON.parse(room.amenities || '[]')
+        }))
+      }));
+
+      setHospitals(processedHospitals);
+    } catch (err) {
+      console.error('Error fetching hospitals:', err);
+      setError('Failed to load hospitals');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter hospitals based on search term and room type/price
   const filteredHospitals = useMemo(() => {
     return hospitals.filter(hospital => {
       const matchesSearch = hospital.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           hospital.city.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesRegion = !selectedRegion || hospital.region === selectedRegion;
+      
       const matchesRoomType = !selectedRoomType || hospital.rooms.some(room => room.type === selectedRoomType);
+      
       const matchesPrice = !selectedRoomType || hospital.rooms.some(room => 
         room.type === selectedRoomType && room.price >= priceRange[0] && room.price <= priceRange[1]
       );
       
-      return matchesSearch && matchesRegion && matchesRoomType && matchesPrice;
+      return matchesSearch && matchesRoomType && matchesPrice;
     });
-  }, [searchTerm, selectedRegion, selectedRoomType, priceRange]);
+  }, [hospitals, searchTerm, selectedRoomType, priceRange]);
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price) => {
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
       currency: 'PHP',
@@ -149,7 +147,7 @@ const HospitalRoomRatesSearchApp = () => {
     }).format(price);
   };
 
-  const renderStars = (rating: number) => {
+  const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
@@ -158,13 +156,44 @@ const HospitalRoomRatesSearchApp = () => {
     ));
   };
 
+  const handleRefresh = () => {
+    setError(null);
+    fetchHospitals();
+    fetchRegions();
+    fetchRoomTypes();
+  };
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Connection Error</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={handleRefresh}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Philippines Hospital Room Rates Search</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Philippines Hospital Search</h1>
           <p className="text-gray-600 mt-2">Find hospitals and compare room rates across the Philippines</p>
+          {loading && (
+            <div className="flex items-center mt-2 text-blue-600">
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              Loading hospital data...
+            </div>
+          )}
         </div>
       </div>
 
@@ -201,10 +230,11 @@ const HospitalRoomRatesSearchApp = () => {
                   value={selectedRegion}
                   onChange={(e) => setSelectedRegion(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={loading}
                 >
                   <option value="">All Regions</option>
                   {regions.map(region => (
-                    <option key={region} value={region}>{region}</option>
+                    <option key={region.id} value={region.name}>{region.name}</option>
                   ))}
                 </select>
               </div>
@@ -215,10 +245,11 @@ const HospitalRoomRatesSearchApp = () => {
                   value={selectedRoomType}
                   onChange={(e) => setSelectedRoomType(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={loading}
                 >
                   <option value="">All Room Types</option>
                   {roomTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
+                    <option key={type.id} value={type.name}>{type.name}</option>
                   ))}
                 </select>
               </div>
@@ -236,6 +267,7 @@ const HospitalRoomRatesSearchApp = () => {
                     value={priceRange[0]}
                     onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
                     className="flex-1"
+                    disabled={loading}
                   />
                   <input
                     type="range"
@@ -245,6 +277,7 @@ const HospitalRoomRatesSearchApp = () => {
                     value={priceRange[1]}
                     onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
                     className="flex-1"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -253,58 +286,135 @@ const HospitalRoomRatesSearchApp = () => {
         </div>
 
         {/* Results */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredHospitals.map(hospital => (
-            <div key={hospital.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900">{hospital.name}</h3>
-                    <div className="flex items-center gap-2 mt-2">
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600">{hospital.city}, {hospital.region}</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Phone className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600">{hospital.phone}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {renderStars(hospital.rating)}
-                    <span className="text-sm text-gray-600 ml-1">{hospital.rating}</span>
-                  </div>
-                </div>
-
-                <div className="text-sm text-gray-600 mb-4">{hospital.address}</div>
-
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-3">Room Rates</h4>
-                  <div className="space-y-3">
-                    {hospital.rooms.map((room, index) => (
-                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <div className="font-medium text-gray-900">{room.type}</div>
-                          <div className="text-sm text-gray-600">
-                            {room.amenities.join(', ')}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-semibold text-blue-600">{formatPrice(room.price)}</div>
-                          <div className="text-sm text-gray-500">per night</div>
-                        </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <span className="ml-2 text-gray-600">Loading hospitals...</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {filteredHospitals.map(hospital => (
+              <div key={hospital.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold text-gray-900">{hospital.name}</h3>
+                      <div className="flex items-center gap-2 mt-2">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-600">{hospital.city}, {hospital.region}</span>
                       </div>
-                    ))}
+                      {hospital.phone && (
+                        <div className="flex items-center gap-2 mt-1">
+                          <Phone className="w-4 h-4 text-gray-400" />
+                          <span className="text-gray-600">{hospital.phone}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {renderStars(hospital.rating)}
+                      <span className="text-sm text-gray-600 ml-1">{hospital.rating}</span>
+                    </div>
+                  </div>
+
+                  {hospital.address && (
+                    <div className="text-sm text-gray-600 mb-4">{hospital.address}</div>
+                  )}
+
+                  {hospital.description && (
+                    <div className="text-sm text-gray-700 mb-4 italic">{hospital.description}</div>
+                  )}
+
+                  {hospital.website && (
+                    <div className="mb-4">
+                      <a 
+                        href={hospital.website} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 text-sm underline"
+                      >
+                        Visit Website
+                      </a>
+                    </div>
+                  )}
+
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-3">Room Rates</h4>
+                    {hospital.rooms.length > 0 ? (
+                      <div className="space-y-3">
+                        {hospital.rooms.map((room, index) => (
+                          <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <div className="flex-1">
+                              <div className="font-medium text-gray-900">{room.name || room.type}</div>
+                              <div className="text-sm text-gray-600">
+                                {room.amenities.length > 0 ? room.amenities.join(', ') : 'No amenities listed'}
+                              </div>
+                            </div>
+                            <div className="text-right ml-4">
+                              <div className="font-semibold text-blue-600">{formatPrice(room.price)}</div>
+                              <div className="text-sm text-gray-500">per night</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-gray-500 text-sm">No room information available</div>
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
-        {filteredHospitals.length === 0 && (
+        {!loading && filteredHospitals.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-500 text-lg">No hospitals found matching your criteria.</div>
             <div className="text-gray-400 mt-2">Try adjusting your search terms or filters.</div>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedRegion('');
+                setSelectedRoomType('');
+                setPriceRange([0, 50000]);
+              }}
+              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Clear All Filters
+            </button>
+          </div>
+        )}
+
+        {/* Statistics */}
+        {!loading && filteredHospitals.length > 0 && (
+          <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-blue-600">{filteredHospitals.length}</div>
+                <div className="text-sm text-gray-600">Hospitals Found</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-green-600">
+                  {filteredHospitals.reduce((sum, h) => sum + h.rooms.length, 0)}
+                </div>
+                <div className="text-sm text-gray-600">Available Rooms</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-purple-600">
+                  {Math.round(filteredHospitals.reduce((sum, h) => sum + h.rating, 0) / filteredHospitals.length * 10) / 10}
+                </div>
+                <div className="text-sm text-gray-600">Average Rating</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-orange-600">
+                  {formatPrice(
+                    filteredHospitals
+                      .flatMap(h => h.rooms)
+                      .reduce((sum, r, _, arr) => sum + r.price / arr.length, 0)
+                  )}
+                </div>
+                <div className="text-sm text-gray-600">Average Price</div>
+              </div>
+            </div>
           </div>
         )}
       </div>
