@@ -42,6 +42,11 @@ export async function GET() {
       `)
       .limit(5)
 
+    // Just to prevent the unused variable warning
+    if (roomsError) {
+      console.log('Rooms Error:', roomsError);
+    }
+
     return Response.json({
       success: true,
       message: 'Database connection successful!',
