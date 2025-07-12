@@ -13,12 +13,31 @@ const HospitalRoomRatesSearchApp = () => {
   const [showFilters, setShowFilters] = useState(false);
 
   // State for data
-  const [hospitals, setHospitals] = useState([]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [regions, setRegions] = useState<{ id: any; name: any }[]>([]);
-  const [roomTypes, setRoomTypes] = useState([]);
+  type HospitalRoom = {
+    type: string;
+    name: string;
+    price: number;
+    amenities: string[];
+  };
+
+  type Hospital = {
+    id: number;
+    name: string;
+    region: string;
+    city: string;
+    address: string;
+    phone: string;
+    rating: number;
+    website: string;
+    description: string;
+    rooms: HospitalRoom[];
+  };
+
+  const [hospitals, setHospitals] = useState<Hospital[]>([]);
+  const [regions, setRegions] = useState<{ id: number; name: string }[]>([]);
+  const [roomTypes, setRoomTypes] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch regions on component mount
   useEffect(() => {
@@ -106,7 +125,7 @@ const HospitalRoomRatesSearchApp = () => {
         rating: hospital.rating,
         website: hospital.website,
         description: hospital.description,
-        rooms: (hospital.rooms || []).map(room => ({
+        rooms: (hospital.rooms || []).map((room: { room_types: { name: string; }; name: string; price: number; amenities: string[]; }) => ({
           type: room.room_types?.name || 'Unknown Type',
           name: room.name,
           price: room.price,
@@ -139,16 +158,17 @@ const HospitalRoomRatesSearchApp = () => {
     });
   }, [hospitals, searchTerm, selectedRoomType, priceRange]);
 
-  const formatPrice = (price) => {
+  const formatPrice = (price: string | number | bigint) => {
+    const numericPrice = typeof price === 'string' ? Number(price) : price;
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
       currency: 'PHP',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(price);
+    }).format(numericPrice);
   };
 
-  const renderStars = (rating) => {
+  const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
