@@ -14,7 +14,8 @@ const HospitalRoomRatesSearchApp = () => {
 
   // State for data
   const [hospitals, setHospitals] = useState([]);
-  const [regions, setRegions] = useState([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [regions, setRegions] = useState<{ id: any; name: any }[]>([]);
   const [roomTypes, setRoomTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
