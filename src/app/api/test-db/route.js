@@ -1,3 +1,4 @@
+// accessible in the link: http://localhost:3000/api/test-db
 import { supabase } from '../../../lib/supabase'
 
 export async function GET() {
