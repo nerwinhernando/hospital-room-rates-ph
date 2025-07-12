@@ -2,6 +2,7 @@
   "name": "hospital-room-rates-ph",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -9,6 +10,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.50.5",
+    "dotenv": "^17.2.0",
     "lucide-react": "^0.525.0",
     "next": "15.3.5",
     "react": "^19.0.0",
