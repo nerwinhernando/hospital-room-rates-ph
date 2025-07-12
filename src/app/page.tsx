@@ -1,5 +1,10 @@
-import HospitalSearchApp from '@/components/HospitalRoomRatesSearchApp';
+import HospitalRoomRatesSearchApp from '@/components/HospitalRoomRatesSearchApp'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 export default function Home() {
-  return <HospitalSearchApp />;
+  return (
+    <ErrorBoundary>
+      <HospitalRoomRatesSearchApp />
+    </ErrorBoundary>
+  )
 }
