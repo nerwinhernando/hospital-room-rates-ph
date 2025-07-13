@@ -77,7 +77,7 @@ const getDataSourceBadge = (dataSource: string) => {
 //   return date.toLocaleDateString();
 // };
 
-const formatTimeAgo = (dateString: string) => {
+const formatTimeAgo = (dateString: string | Date) => {
   if (!dateString) return 'Unknown';
   
   const date = new Date(dateString);
