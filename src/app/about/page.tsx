@@ -171,7 +171,7 @@ export default function About() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Community Rate Updates</h3>
               <p className="text-gray-600">
-                Our community helps keep room rate information current by submitting updated pricing they've encountered, all verified by our admin team.
+                Our community helps keep room rate information current by submitting updated pricing they&apos;ve encountered, all verified by our admin team.
               </p>
             </div>
 
@@ -266,7 +266,7 @@ export default function About() {
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-gray-900 mb-2">Hospital Name Search</h4>
-                    <p className="text-gray-600">Type the name of any hospital to quickly find specific facilities you're looking for.</p>
+                    <p className="text-gray-600">Type the name of any hospital to quickly find specific facilities you&apos;re looking for.</p>
                   </div>
                 </div>
                 
@@ -426,7 +426,7 @@ export default function About() {
             <div className="bg-white p-8 rounded-lg shadow-md max-w-3xl mx-auto">
               <h4 className="text-xl font-semibold text-gray-900 mb-4">Join Our Community of Rate Contributors</h4>
               <p className="text-gray-600 mb-6">
-                Help fellow Filipinos by sharing current room rate information you've encountered. Every submission helps make healthcare pricing more transparent and accessible for everyone.
+                Help fellow Filipinos by sharing current room rate information you&apos;ve encountered. Every submission helps make healthcare pricing more transparent and accessible for everyone.
               </p>
               <Link href="/submit-rates" className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
                 Become a Contributor
