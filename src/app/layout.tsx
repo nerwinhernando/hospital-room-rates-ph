@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Link from 'next/link';
 import Image from 'next/image';
+import MobileMenu from '@/components/MobileMenu';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Philippines Hospital Room Rates Search',
+  title: 'Philippine Hospitals Room Rates',
   description: 'Find hospitals and compare room rates across the Philippines',
 };
 
@@ -27,18 +28,18 @@ export default function RootLayout({
               <Link href="/" className="flex items-center space-x-3">
                 <Image
                   src="/logo.png"
-                  alt="PH Hospital Search Logo"
+                  alt="Philippine Hospitals Room Rates Logo"
                   width={40}
                   height={40}
                   className="h-10 w-auto"
                   priority
                 />
                 <div className="text-xl font-bold text-blue-600">
-                  Philippines Hospital Room Rates Search
+                  Philippine Hospitals Room Rates
                 </div>
               </Link>
 
-              {/* Navigation Links */}
+              {/* Desktop Navigation Links */}
               <div className="hidden md:flex space-x-6">
                 <Link 
                   href="/" 
@@ -48,7 +49,7 @@ export default function RootLayout({
                 </Link>
                 <Link 
                   href="/submit-rates" 
-                  className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Submit Room Rates
                 </Link>
@@ -60,14 +61,8 @@ export default function RootLayout({
                 </Link>
               </div>
 
-              {/* Mobile menu button */}
-              <div className="md:hidden">
-                <button className="text-gray-700 hover:text-blue-600">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-              </div>
+              {/* Mobile Menu Component */}
+              <MobileMenu />
             </div>
           </div>
         </nav>
@@ -79,23 +74,32 @@ export default function RootLayout({
         <footer className="bg-gray-800 text-white py-8 mt-12">
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Philippines Hospital Room Rates Search</h3>
-                <p className="text-gray-300">
-                  Your trusted resource for finding hospitals and comparing room rates across the Philippines.
-                </p>
+              <div className="flex items-start space-x-3">
+                <Image
+                  src="/logo.png"
+                  alt="Philippine Hospital Room Rates Search Logo"
+                  width={32}
+                  height={32}
+                  className="h-8 w-auto mt-1"
+                />
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Philippine Hospitals Room Rates</h3>
+                  <p className="text-gray-300">
+                    Your trusted resource for finding hospitals and comparing room rates across the Philippines.
+                  </p>
+                </div>
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
                 <div className="space-y-2">
-                  <Link href="/" className="block text-gray-300 hover:text-white">
+                  <Link href="/" className="block text-gray-300 hover:text-white transition-colors">
                     Search Hospitals
                   </Link>
-                  <Link href="/submit-rates" className="block text-gray-300 hover:text-white">
+                  <Link href="/submit-rates" className="block text-gray-300 hover:text-white transition-colors">
                     Submit Room Rates
                   </Link>
-                  <Link href="/about" className="block text-gray-300 hover:text-white">
-                    About Us
+                  <Link href="/about" className="block text-gray-300 hover:text-white transition-colors">
+                    About the Project
                   </Link>
                 </div>
               </div>
@@ -103,12 +107,12 @@ export default function RootLayout({
                 <h3 className="text-lg font-semibold mb-4">Contact</h3>
                 <p className="text-gray-300">
                   Email: nerwinc.hernando@gmail.com<br />
-                  Phone: +63 917 593 2711
+                  Phone: +63 917 5932711
                 </p>
               </div>
             </div>
             <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-              <p>&copy; 2025 PHilippines Hospital Room Rates Search. All rights reserved.</p>
+              <p>&copy; 2025 Philippine Hospitals Room Rates. All rights reserved.</p>
             </div>
           </div>
         </footer>
