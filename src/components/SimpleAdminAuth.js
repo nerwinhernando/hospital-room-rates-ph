@@ -22,6 +22,17 @@ const SimpleAdminAuth = ({ children }) => {
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Auto-logout after 1 hour of inactivity
+      const timeout = setTimeout(() => {
+        handleLogout();
+      }, 60 * 60 * 1000); // 1 hour
+
+      return () => clearTimeout(timeout);
+    }
+  }, [isAuthenticated]);
+
   const handleLogin = (e) => {
     e.preventDefault();
     
