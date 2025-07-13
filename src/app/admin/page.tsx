@@ -1,5 +1,10 @@
+import SimpleAuth from '@/components/SimpleAdminAuth';
 import AdminDashboard from '@/components/AdminDashboard';
 
 export default function AdminPage() {
-  return <AdminDashboard />;
+  return (
+    <SimpleAuth>
+      <AdminDashboard />
+    </SimpleAuth>
+  );
 }
