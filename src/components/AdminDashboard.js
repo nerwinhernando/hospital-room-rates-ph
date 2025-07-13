@@ -208,7 +208,7 @@ const AdminDashboard = () => {
                         )}
                         {room.description && (
                           <div className="text-sm text-gray-600 mt-1">
-                            "{room.description}"
+                            &quot;{room.description}&quot;
                           </div>
                         )}
                       </div>
