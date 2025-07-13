@@ -49,7 +49,7 @@ export default function RootLayout({
                 </Link>
                 <Link 
                   href="/submit-rates" 
-                  className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Submit Room Rates
                 </Link>
@@ -100,6 +100,9 @@ export default function RootLayout({
                   </Link>
                   <Link href="/about" className="block text-gray-300 hover:text-white transition-colors">
                     About the Project
+                  </Link>
+                  <Link href="/contact-us" className="block text-gray-300 hover:text-white transition-colors">
+                    Contact Us
                   </Link>
                 </div>
               </div>
