@@ -5,7 +5,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Philippines Hospital Search',
+  title: 'Philippines Hospital Room Rates Search',
   description: 'Find hospitals and compare room rates across the Philippines',
 };
 
