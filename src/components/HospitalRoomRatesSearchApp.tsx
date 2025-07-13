@@ -234,7 +234,7 @@ const HospitalSearchApp = () => {
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Philippines Hospital Room Rates Search</h1>
+          {/* <h1 className="text-3xl font-bold text-gray-900">Philippines Hospital Room Rates Search</h1> */}
           <p className="text-gray-600 mt-2">Find hospitals and compare room rates across the Philippines</p>
           {loading && (
             <div className="flex items-center mt-2 text-blue-600">

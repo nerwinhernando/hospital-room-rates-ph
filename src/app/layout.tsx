@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Link from 'next/link';
+import Image from 'next/image';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -22,8 +23,16 @@ export default function RootLayout({
         <nav className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex justify-between items-center h-16">
-              {/* Logo/Brand */}
-              <Link href="/" className="flex items-center">
+              {/* Logo with PNG Image */}
+              <Link href="/" className="flex items-center space-x-3">
+                <Image
+                  src="/logo.png"
+                  alt="PH Hospital Search Logo"
+                  width={40}
+                  height={40}
+                  className="h-10 w-auto"
+                  priority
+                />
                 <div className="text-xl font-bold text-blue-600">
                   Philippines Hospital Room Rates Search
                 </div>
