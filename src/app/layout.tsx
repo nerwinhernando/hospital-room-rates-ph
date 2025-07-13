@@ -71,7 +71,7 @@ export default function RootLayout({
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
-                <h3 className="text-lg font-semibold mb-4">PH Hospital Room Rates Search</h3>
+                <h3 className="text-lg font-semibold mb-4">Philippines Hospital Room Rates Search</h3>
                 <p className="text-gray-300">
                   Your trusted resource for finding hospitals and comparing room rates across the Philippines.
                 </p>
