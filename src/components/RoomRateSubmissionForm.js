@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Building2, 
-  MapPin, 
+  // MapPin, 
   DollarSign, 
   Users, 
   Bed, 
@@ -16,12 +16,16 @@ import {
   Star,
   Calendar,
   User,
-  Mail,
-  Phone
+  // Mail,
+  // Phone,
+  ArrowLeft
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
-const RoomRateSubmissionForm = () => {
+const RoomRateSubmissionForm = ({ onClose }) => {
+  const router = useRouter();
+  
   // Form state
   const [selectedHospital, setSelectedHospital] = useState('');
   const [submitterInfo, setSubmitterInfo] = useState({
@@ -43,60 +47,13 @@ const RoomRateSubmissionForm = () => {
     rating: 5
   }]);
 
-  // Mock data (in real app, this would come from Supabase)
-  const hospitals = [
-    { id: 1, name: 'Makati Medical Center', city: 'Makati City', region: 'National Capital Region' },
-    { id: 2, name: 'St. Luke\'s Medical Center', city: 'Quezon City', region: 'National Capital Region' },
-    { id: 3, name: 'The Medical City', city: 'Pasig City', region: 'National Capital Region' },
-    { id: 4, name: 'Asian Hospital and Medical Center', city: 'Muntinlupa City', region: 'National Capital Region' },
-    { id: 5, name: 'Philippine General Hospital', city: 'Manila', region: 'National Capital Region' },
-    { id: 6, name: 'Cebu Doctors\' University Hospital', city: 'Cebu City', region: 'Central Visayas' },
-    { id: 7, name: 'Vicente Sotto Memorial Medical Center', city: 'Cebu City', region: 'Central Visayas' },
-    { id: 8, name: 'Chong Hua Hospital', city: 'Cebu City', region: 'Central Visayas' },
-    { id: 9, name: 'The Medical City Iloilo', city: 'Iloilo City', region: 'Western Visayas' },
-    { id: 10, name: 'Western Visayas Medical Center', city: 'Iloilo City', region: 'Western Visayas' },
-    { id: 11, name: 'Southern Philippines Medical Center', city: 'Davao City', region: 'Davao Region' },
-    { id: 12, name: 'Davao Medical School Foundation Hospital', city: 'Davao City', region: 'Davao Region' },
-    { id: 13, name: 'Northern Mindanao Medical Center', city: 'Cagayan de Oro City', region: 'Northern Mindanao' },
-    { id: 14, name: 'Baguio General Hospital', city: 'Baguio City', region: 'Cordillera Administrative Region' },
-    { id: 15, name: 'Angeles University Foundation Medical Center', city: 'Angeles City', region: 'Central Luzon' }
-  ];
-
-  const roomTypes = [
-    { id: 1, name: 'Standard Room' },
-    { id: 2, name: 'Deluxe Room' },
-    { id: 3, name: 'Suite' },
-    { id: 4, name: 'ICU' },
-    { id: 5, name: 'Emergency Room' },
-    { id: 6, name: 'Operating Room' },
-    { id: 7, name: 'Private Ward' },
-    { id: 8, name: 'Semi-Private Ward' },
-    { id: 9, name: 'Maternity Room' }
-  ];
-
-  const availableAmenities = [
-    { id: 1, name: 'Air Conditioning', category: 'comfort' },
-    { id: 2, name: 'Television', category: 'entertainment' },
-    { id: 3, name: 'Private Bathroom', category: 'comfort' },
-    { id: 4, name: 'Shared Bathroom', category: 'comfort' },
-    { id: 5, name: 'Wi-Fi', category: 'technology' },
-    { id: 6, name: 'Telephone', category: 'technology' },
-    { id: 7, name: 'Refrigerator', category: 'comfort' },
-    { id: 8, name: 'Sofa', category: 'comfort' },
-    { id: 9, name: 'Balcony', category: 'comfort' },
-    { id: 10, name: 'Kitchen/Kitchenette', category: 'comfort' },
-    { id: 11, name: 'Living Area', category: 'comfort' },
-    { id: 12, name: '24/7 Monitoring', category: 'medical' },
-    { id: 13, name: 'Ventilator Ready', category: 'medical' },
-    { id: 14, name: 'Specialized Equipment', category: 'medical' },
-    { id: 15, name: 'Nurse Call Button', category: 'medical' },
-    { id: 16, name: 'Oxygen Supply', category: 'medical' },
-    { id: 17, name: 'Cardiac Monitor', category: 'medical' },
-    { id: 18, name: 'Wheelchair Accessible', category: 'accessibility' }
-  ];
+  // Data state
+  const [hospitals, setHospitals] = useState([]);
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [availableAmenities, setAvailableAmenities] = useState([]);
   
   // UI state
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
@@ -108,6 +65,57 @@ const RoomRateSubmissionForm = () => {
     { value: 'researcher', label: 'Healthcare Researcher' },
     { value: 'other', label: 'Other' }
   ];
+
+  // Load initial data
+  useEffect(() => {
+    loadFormData();
+  }, []);
+
+  const loadFormData = async () => {
+    try {
+      setLoading(true);
+      
+      // Load hospitals
+      const { data: hospitalsData, error: hospitalsError } = await supabase
+        .from('hospitals')
+        .select(`
+          id,
+          name,
+          city,
+          regions(name)
+        `)
+        .eq('is_active', true)
+        .order('name');
+
+      if (hospitalsError) throw hospitalsError;
+
+      // Load room types
+      const { data: roomTypesData, error: roomTypesError } = await supabase
+        .from('room_types')
+        .select('*')
+        .order('name');
+
+      if (roomTypesError) throw roomTypesError;
+
+      // Load amenities
+      const { data: amenitiesData, error: amenitiesError } = await supabase
+        .from('amenities')
+        .select('*')
+        .order('category', 'name');
+
+      if (amenitiesError) throw amenitiesError;
+
+      setHospitals(hospitalsData || []);
+      setRoomTypes(roomTypesData || []);
+      setAvailableAmenities(amenitiesData || []);
+      
+    } catch (err) {
+      console.error('Error loading form data:', err);
+      setError('Failed to load form data. Please refresh and try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const addRoomEntry = () => {
     setRoomEntries([...roomEntries, {
@@ -200,32 +208,31 @@ const RoomRateSubmissionForm = () => {
       setSubmitting(true);
       setError(null);
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Create submission data
+      // Create submission record
       const submissionData = {
-        hospital_id: selectedHospital,
+        hospital_id: parseInt(selectedHospital),
         submitter_name: submitterInfo.name,
         submitter_email: submitterInfo.email,
-        submitter_phone: submitterInfo.phone,
+        submitter_phone: submitterInfo.phone || null,
         submitter_relationship: submitterInfo.relationship,
         room_entries: roomEntries.map(entry => ({
           room_type: entry.roomType,
-          room_name: entry.roomName,
+          room_name: entry.roomName || null,
           price: parseFloat(entry.price),
           capacity: entry.capacity,
           amenities: entry.amenities,
-          description: entry.description,
-          date_stayed: entry.dateStayed,
+          description: entry.description || null,
+          date_stayed: entry.dateStayed || null,
           rating: entry.rating
         })),
-        status: 'pending',
-        created_at: new Date().toISOString()
+        status: 'pending'
       };
 
-      // In a real app, this would be sent to your backend/Supabase
-      console.log('Submission data:', submissionData);
+      const { error: submitError } = await supabase
+        .from('room_rate_submissions')
+        .insert(submissionData);
+
+      if (submitError) throw submitError;
 
       setSubmitted(true);
       
@@ -255,6 +262,21 @@ const RoomRateSubmissionForm = () => {
     setError(null);
   };
 
+  const handleBackToHome = () => {
+    router.push('/');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <span className="text-gray-600">Loading form...</span>
+        </div>
+      </div>
+    );
+  }
+
   if (submitted) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -264,12 +286,18 @@ const RoomRateSubmissionForm = () => {
           <p className="text-gray-600 mb-6">
             Thank you for contributing hospital room rate information. Your submission will be reviewed and added to our database.
           </p>
-          <button
-            onClick={resetForm}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Submit Another Entry
-          </button>
+          <div className="flex flex-col gap-3 justify-center">
+            <button onClick={resetForm}>
+              Submit Another Entry
+            </button>
+            <button
+              onClick={handleBackToHome}
+              className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Hospital Search
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -280,11 +308,38 @@ const RoomRateSubmissionForm = () => {
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Submit Hospital Room Rates</h1>
-          <p className="text-gray-600">
-            Help others by sharing accurate room rate information from Philippine hospitals. 
-            Your contributions help patients make informed decisions about their healthcare.
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Submit Hospital Room Rates</h1>
+              <p className="text-gray-600">
+                Help others by sharing accurate room rate information from Philippine hospitals. 
+                Your contributions help patients make informed decisions about their healthcare.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  className="text-gray-400 hover:text-gray-600 p-2"
+                  title="Close"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+              {!onClose && (
+                <button
+                  onClick={handleBackToHome}
+                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors"
+                  title="Back to Hospital Search"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Back to Search</span>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -374,7 +429,7 @@ const RoomRateSubmissionForm = () => {
                 <option value="">Select a hospital</option>
                 {hospitals.map(hospital => (
                   <option key={hospital.id} value={hospital.id}>
-                    {hospital.name} - {hospital.city}, {hospital.region}
+                    {hospital.name} - {hospital.city}, {hospital.regions?.name}
                   </option>
                 ))}
               </select>
