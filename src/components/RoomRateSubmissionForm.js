@@ -506,7 +506,6 @@ const RoomRateSubmissionForm = ({ onClose }) => {
                         Price per Night (PHP) *
                       </label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                         <input
                           type="number"
                           value={entry.price}
