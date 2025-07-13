@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function SubmitRatesPage() {
   return (
     <div>
-      <RoomRateSubmissionForm />
+      <RoomRateSubmissionForm onClose={undefined} />
     </div>
   );
 }
