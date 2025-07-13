@@ -35,3 +35,7 @@ CREATE POLICY "Allow users to view own submissions" ON room_rate_submissions
 -- Create trigger for updating timestamp
 CREATE TRIGGER update_submissions_updated_at BEFORE UPDATE ON room_rate_submissions
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Allow public read access to room_rate_submissions
+CREATE POLICY "Allow public read access on room_rate_submissions" ON room_rate_submissions
+    FOR SELECT USING (true);
