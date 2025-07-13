@@ -136,7 +136,7 @@ const AdminDashboard = () => {
       }
 
       await updateSubmissionStatus(submission.id, 'approved', 'Successfully added to database with contributor attribution');
-      
+
     } catch (err) {
       console.log('Error approving submission:', err);
       await updateSubmissionStatus(submission.id, 'rejected', 'Error adding to database: ' + err.message);
