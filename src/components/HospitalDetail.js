@@ -4,6 +4,32 @@ import React, { useState, useEffect } from 'react'
 import { MapPin, Phone, Star, Globe, ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
+const DataSourceLegend = () => (
+  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+    <h3 className="text-sm font-medium text-blue-900 mb-2">Data Source Legend:</h3>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          ✓ User Verified
+        </span>
+        <span className="text-gray-600">Submitted by real users</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+          ⚠ Sample Data
+        </span>
+        <span className="text-gray-600">Demo/placeholder rates</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          ✓ Admin Verified
+        </span>
+        <span className="text-gray-600">Officially confirmed rates</span>
+      </div>
+    </div>
+  </div>
+);
+
 export default function HospitalDetail({ hospitalId, onBack }) {
   const [hospital, setHospital] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -187,6 +213,10 @@ export default function HospitalDetail({ hospitalId, onBack }) {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Available Rooms & Rates</h2>
+
+              {/* ADD DATA SOURCE LEGEND HERE */}
+              <DataSourceLegend />
+
               {hospital.rooms && hospital.rooms.length > 0 ? (
                 <div className="space-y-4">
                   {hospital.rooms

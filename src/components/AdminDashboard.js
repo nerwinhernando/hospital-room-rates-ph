@@ -4,7 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { 
   CheckCircle, 
   XCircle, 
-  Clock, 
+  Clock,
+  Loader2,
+  // AlertCircle,
+  // RefreshCw
   // Eye
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -12,6 +15,7 @@ import { supabase } from '@/lib/supabase';
 const AdminDashboard = () => {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(null);
   // const [selectedSubmission, setSelectedSubmission] = useState(null);
 
   useEffect(() => {
@@ -70,61 +74,75 @@ const AdminDashboard = () => {
       loadSubmissions(); // Refresh list
     } catch (err) {
       console.error('Error updating submission:', err);
+    } finally {
+      setProcessing(null);
     }
   };
 
   const approveAndAddToDatabase = async (submission) => {
     try {
-      // Add rooms to the main database
+      setProcessing(submission.id);
+
+      // Add rooms to the main database with contributor info
       for (const roomEntry of submission.room_entries) {
-        // First, get or create room type
-        const { data: roomType, error: roomTypeError } = await supabase
+        // Get or create room type
+        let { data: roomType, error: roomTypeError } = await supabase
           .from('room_types')
           .select('id')
           .eq('name', roomEntry.room_type)
           .single();
 
-        if (roomTypeError && roomTypeError.code !== 'PGRST116') {
-          throw roomTypeError;
-        }
-
-        let roomTypeId = roomType?.id;
-
-        // Create room type if it doesn't exist
-        if (!roomTypeId) {
+        if (roomTypeError && roomTypeError.code === 'PGRST116') {
           const { data: newRoomType, error: createError } = await supabase
             .from('room_types')
-            .insert({ name: roomEntry.room_type })
+            .insert({ 
+              name: roomEntry.room_type,
+              description: `${roomEntry.room_type} submitted by user`
+            })
             .select('id')
             .single();
 
           if (createError) throw createError;
-          roomTypeId = newRoomType.id;
+          roomType = newRoomType;
+        } else if (roomTypeError) {
+          throw roomTypeError;
         }
 
-        // Add room to database
+        // Add room to database WITH CONTRIBUTOR INFO
         const { error: roomError } = await supabase
           .from('rooms')
           .insert({
             hospital_id: submission.hospital_id,
-            room_type_id: roomTypeId,
-            name: roomEntry.room_name,
+            room_type_id: roomType.id,
+            name: roomEntry.room_name || roomEntry.room_type,
             price: roomEntry.price,
             capacity: roomEntry.capacity,
             amenities: JSON.stringify(roomEntry.amenities),
             description: roomEntry.description,
-            is_available: true
+            is_available: true,
+            // NEW FIELDS FOR TRACKING
+            data_source: 'user_submitted',
+            contributor_name: submission.submitter_name,
+            contributor_email: submission.submitter_email,
+            submission_id: submission.id,
+            last_verified_at: new Date().toISOString(),
+            verification_notes: `Approved by admin from submission on ${new Date().toLocaleDateString()}`
           });
 
-        if (roomError) throw roomError;
+        if (roomError) {
+          console.log('Room insertion error:', roomError);
+          throw roomError;
+        }
       }
 
-      // Update submission status
-      await updateSubmissionStatus(submission.id, 'approved', 'Added to database');
+      await updateSubmissionStatus(submission.id, 'approved', 'Successfully added to database with contributor attribution');
       
     } catch (err) {
-      console.error('Error approving submission:', err);
-      await updateSubmissionStatus(submission.id, 'rejected', 'Error adding to database');
+      console.log('Error approving submission:', err);
+      await updateSubmissionStatus(submission.id, 'rejected', 'Error adding to database: ' + err.message);
+    } finally {
+      console.log('Finally Block');
+      setProcessing(null);
     }
   };
 
@@ -228,14 +246,22 @@ const AdminDashboard = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => approveAndAddToDatabase(submission)}
+                  disabled={processing === submission.id} // ← DISABLE if this submission is processing
                   className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                 >
-                  Approve & Add to Database
+                  {processing === submission.id ? (  // ← SHOW spinner if this submission is processing
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <CheckCircle className="w-4 h-4" />
+                  )}
+                  {processing === submission.id ? 'Processing...' : 'Approve & Add to Database'}
                 </button>
                 <button
                   onClick={() => updateSubmissionStatus(submission.id, 'rejected', 'Does not meet quality standards')}
+                  disabled={processing === submission.id} // ← DISABLE if this submission is processing
                   className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
                 >
+                  <XCircle className="w-4 h-4" />
                   Reject
                 </button>
               </div>

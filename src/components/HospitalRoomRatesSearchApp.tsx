@@ -7,6 +7,91 @@ import { supabase } from '@/lib/supabase';
 // Import the HospitalDetail component
 const HospitalDetail = React.lazy(() => import('./HospitalDetail'));
 
+const DataSourceLegend = () => (
+  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+    <h3 className="text-sm font-medium text-blue-900 mb-2">Data Source Legend:</h3>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          ✓ User Verified
+        </span>
+        <span className="text-gray-600">Submitted by real users</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+          ⚠ Sample Data
+        </span>
+        <span className="text-gray-600">Demo/placeholder rates</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          ✓ Admin Verified
+        </span>
+        <span className="text-gray-600">Officially confirmed rates</span>
+      </div>
+    </div>
+  </div>
+);
+
+const getDataSourceBadge = (dataSource: string) => {
+  switch (dataSource) {
+    case 'user_submitted':
+      return (
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          ✓ User Verified
+        </span>
+      );
+    case 'dummy':
+      return (
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+          ⚠ Sample Data
+        </span>
+      );
+    case 'admin_verified':
+      return (
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          ✓ Admin Verified
+        </span>
+      );
+    default:
+      return (
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+          ? Unknown
+        </span>
+      );
+  }
+};
+
+// const formatTimeAgo = (dateString) => {
+//   if (!dateString) return 'Unknown';
+  
+//   const date = new Date(dateString);
+//   const now = new Date();
+//   const diffInSeconds = Math.floor((now - date) / 1000);
+  
+//   if (diffInSeconds < 60) return 'Just now';
+//   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+//   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+//   if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  
+//   return date.toLocaleDateString();
+// };
+
+const formatTimeAgo = (dateString: string) => {
+  if (!dateString) return 'Unknown';
+  
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  
+  return date.toLocaleDateString();
+};
+
 const HospitalSearchApp = () => {
   // State for UI
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,7 +109,14 @@ const HospitalSearchApp = () => {
     type: string;
     name: string;
     price: number;
+    capacity: number;
     amenities: string[];
+    lastUpdated: Date;
+    lastVerified: Date;
+    dataSource: string;
+    description: string;
+    contributorName: string;
+    contributor_email: string;
   };
 
   type Hospital = {
@@ -104,6 +196,13 @@ const HospitalSearchApp = () => {
             name,
             price,
             amenities,
+            capacity,
+            description,
+            data_source,
+            contributor_name,
+            contributor_email,
+            last_verified_at,
+            updated_at,
             room_types(name)
           )
         `)
@@ -132,11 +231,24 @@ const HospitalSearchApp = () => {
         rating: hospital.rating,
         website: hospital.website,
         description: hospital.description,
-        rooms: (hospital.rooms || []).map((room: { room_types: { name: string; }; name: string; price: number; amenities: string[]; }) => ({
+        rooms: (hospital.rooms || []).map((room: {
+          updated_at: Date | string;
+          last_verified_at: Date | string;
+          contributor_email: string;
+          contributor_name: string;
+          data_source: string;
+          description: string; room_types: { name: string; }; name: string; price: number; amenities: string[]; }) => ({
           type: room.room_types?.name || 'Unknown Type',
           name: room.name,
           price: room.price,
-          amenities: Array.isArray(room.amenities) ? room.amenities : JSON.parse(room.amenities || '[]')
+          amenities: Array.isArray(room.amenities) ? room.amenities : JSON.parse(room.amenities || '[]'),
+          description: room.description,
+          // NEW FIELDS
+          dataSource: room.data_source,
+          contributorName: room.contributor_name,
+          contributorEmail: room.contributor_email,
+          lastVerified: room.last_verified_at ? new Date(room.last_verified_at) : null,
+          lastUpdated: room.updated_at ? new Date(room.updated_at) : null
         }))
       }));
 
@@ -333,6 +445,9 @@ const HospitalSearchApp = () => {
           )}
         </div>
 
+        {/* ADD DATA SOURCE LEGEND HERE */}
+        <DataSourceLegend />
+
         {/* Results */}
         {loading ? (
           <div className="flex justify-center items-center py-12">
@@ -391,23 +506,60 @@ const HospitalSearchApp = () => {
                       </a>
                     </div>
                   )}
-
                   <div>
                     <h4 className="font-medium text-gray-900 mb-3">Room Rates</h4>
                     {hospital.rooms.length > 0 ? (
                       <div className="space-y-3">
                         {hospital.rooms.slice(0, 3).map((room, index) => (
-                          <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                            <div className="flex-1">
-                              <div className="font-medium text-gray-900">{room.name || room.type}</div>
-                              <div className="text-sm text-gray-600">
-                                {room.amenities.length > 0 ? room.amenities.slice(0, 3).join(', ') : 'No amenities listed'}
-                                {room.amenities.length > 3 && '...'}
+                          <div key={index} className="flex flex-col p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            {/* Room Header with Price */}
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <div className="font-medium text-gray-900">{room.name || room.type}</div>
+                                  {getDataSourceBadge(room.dataSource)}
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                  {room.amenities.length > 0 ? room.amenities.slice(0, 3).join(', ') : 'No amenities listed'}
+                                  {room.amenities.length > 3 && '...'}
+                                </div>
+                              </div>
+                              <div className="text-right ml-4">
+                                <div className="font-semibold text-blue-600">{formatPrice(room.price)}</div>
+                                <div className="text-sm text-gray-500">per night</div>
                               </div>
                             </div>
-                            <div className="text-right ml-4">
-                              <div className="font-semibold text-blue-600">{formatPrice(room.price)}</div>
-                              <div className="text-sm text-gray-500">per night</div>
+
+                            {/* Contributor and Timestamp Info */}
+                            <div className="border-t border-gray-200 pt-2 mt-2">
+                              <div className="flex justify-between items-center text-xs text-gray-500">
+                                <div className="flex items-center gap-4">
+                                  {/* Contributor Info */}
+                                  {room.contributorName && room.dataSource === 'user_submitted' ? (
+                                    <div className="flex items-center gap-1">
+                                      <span className="font-medium">Contributed by:</span>
+                                      <span className="text-blue-600">{room.contributorName}</span>
+                                    </div>
+                                  ) : room.dataSource === 'dummy' ? (
+                                    <div className="flex items-center gap-1">
+                                      <span className="font-medium">Sample data</span>
+                                      <span className="text-yellow-600">for demonstration</span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center gap-1">
+                                      <span className="font-medium">Official data</span>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Last Updated */}
+                                <div className="flex items-center gap-1">
+                                  <span>Updated:</span>
+                                  <span className="font-medium">
+                                    {formatTimeAgo(room.lastVerified || room.lastUpdated)}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -421,6 +573,7 @@ const HospitalSearchApp = () => {
                       <div className="text-gray-500 text-sm">No room information available</div>
                     )}
                   </div>
+                  
                 </div>
               </div>
             ))}
