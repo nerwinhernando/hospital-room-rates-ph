@@ -25,7 +25,7 @@ export default function RootLayout({
               {/* Logo/Brand */}
               <Link href="/" className="flex items-center">
                 <div className="text-xl font-bold text-blue-600">
-                  PH Hospital Room Rates Search
+                  Philippines Hospital Room Rates Search
                 </div>
               </Link>
 
@@ -99,7 +99,7 @@ export default function RootLayout({
               </div>
             </div>
             <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-              <p>&copy; 2025 PH Hospital Room Rates Search. All rights reserved.</p>
+              <p>&copy; 2025 PHilippines Hospital Room Rates Search. All rights reserved.</p>
             </div>
           </div>
         </footer>
