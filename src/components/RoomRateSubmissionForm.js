@@ -1,10 +1,9 @@
-// src/components/RoomRateSubmissionForm.js
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { 
   Building2, 
-  MapPin, 
+  // MapPin, 
   DollarSign, 
   Users, 
   Bed, 
@@ -17,8 +16,8 @@ import {
   Star,
   Calendar,
   User,
-  Mail,
-  Phone,
+  // Mail,
+  // Phone,
   ArrowLeft
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -263,15 +262,6 @@ const RoomRateSubmissionForm = ({ onClose }) => {
     setError(null);
   };
 
-  const handleClose = () => {
-    if (onClose) {
-      onClose();
-    } else {
-      // If no onClose prop, navigate back to home
-      router.push('/');
-    }
-  };
-
   const handleBackToHome = () => {
     router.push('/');
   };
@@ -297,10 +287,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
             Thank you for contributing hospital room rate information. Your submission will be reviewed and added to our database.
           </p>
           <div className="flex flex-col gap-3 justify-center">
-            <button
-              onClick={resetForm}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
+            <button onClick={resetForm}>
               Submit Another Entry
             </button>
             <button
