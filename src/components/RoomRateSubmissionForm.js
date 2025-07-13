@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Building2, 
   // MapPin, 
-  DollarSign, 
+  // DollarSign, 
   Users, 
   Bed, 
   Plus, 
@@ -331,7 +331,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
               {!onClose && (
                 <button
                   onClick={handleBackToHome}
-                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors"
+                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors text-black"
                   title="Back to Hospital Search"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -359,7 +359,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
                   type="text"
                   value={submitterInfo.name}
                   onChange={(e) => setSubmitterInfo({...submitterInfo, name: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -372,7 +372,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
                   type="email"
                   value={submitterInfo.email}
                   onChange={(e) => setSubmitterInfo({...submitterInfo, email: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                   placeholder="Enter your email"
                 />
               </div>
@@ -385,7 +385,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
                   type="tel"
                   value={submitterInfo.phone}
                   onChange={(e) => setSubmitterInfo({...submitterInfo, phone: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                   placeholder="Enter your phone number"
                 />
               </div>
@@ -397,7 +397,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
                 <select
                   value={submitterInfo.relationship}
                   onChange={(e) => setSubmitterInfo({...submitterInfo, relationship: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                 >
                   <option value="">Select relationship</option>
                   {relationshipOptions.map(option => (
@@ -424,7 +424,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
               <select
                 value={selectedHospital}
                 onChange={(e) => setSelectedHospital(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
               >
                 <option value="">Select a hospital</option>
                 {hospitals.map(hospital => (
@@ -477,7 +477,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
                       <select
                         value={entry.roomType}
                         onChange={(e) => updateRoomEntry(entry.id, 'roomType', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                       >
                         <option value="">Select room type</option>
                         {roomTypes.map(type => (
@@ -496,7 +496,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
                         type="text"
                         value={entry.roomName}
                         onChange={(e) => updateRoomEntry(entry.id, 'roomName', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                         placeholder="e.g., Room 201, VIP Suite A"
                       />
                     </div>
@@ -510,7 +510,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
                           type="number"
                           value={entry.price}
                           onChange={(e) => updateRoomEntry(entry.id, 'price', e.target.value)}
-                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                           placeholder="0"
                           min="0"
                           step="100"
@@ -533,7 +533,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
                           type="number"
                           value={entry.capacity}
                           onChange={(e) => updateRoomEntry(entry.id, 'capacity', parseInt(e.target.value) || 1)}
-                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                           min="1"
                           max="10"
                         />
@@ -550,7 +550,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
                           type="date"
                           value={entry.dateStayed}
                           onChange={(e) => updateRoomEntry(entry.id, 'dateStayed', e.target.value)}
-                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                         />
                       </div>
                     </div>
@@ -582,7 +582,7 @@ const RoomRateSubmissionForm = ({ onClose }) => {
                     <textarea
                       value={entry.description}
                       onChange={(e) => updateRoomEntry(entry.id, 'description', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                       rows={3}
                       placeholder="Describe the room condition, cleanliness, view, etc."
                     />
