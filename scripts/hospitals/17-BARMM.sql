@@ -1,4 +1,4 @@
--- BARMM (Ilocos Region) Hospitals - Region ID: 17
+-- BARMM (Bangsangmoro) Hospitals - Region ID: 17
 -- Extracted from NowServing and Wikipedia
 -- BARMM comprises of Basilan, Lanao del Sur, Maguindanao del Norte, Maguindanao del Sur, Sulu, Tawi-Tawi
 
